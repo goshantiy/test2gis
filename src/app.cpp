@@ -26,3 +26,9 @@ TestApp::TestApp()
     QObject::connect(&_histogramModel, &HistogramModel::pause, &_wordCounter,
                      &WordCounter::pauseProcessing);
 }
+
+TestApp::~TestApp()
+{
+    _wordCounter.stopProcessing();
+    _wordCounterThread.exit();
+}

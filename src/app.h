@@ -12,6 +12,7 @@ class TestApp
 {
 public:
     TestApp();
+    ~TestApp();
 
 private:
     HistogramModel _histogramModel;
