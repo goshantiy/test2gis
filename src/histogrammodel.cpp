@@ -77,7 +77,7 @@ int HistogramModel::getBarHeight(int index) const
         }
 
         // Возвращаем ширину в процентах
-        return static_cast<int>(percentHeight);
+        return static_cast<int>(percentHeight * 3);
     }
     return 0;
 }

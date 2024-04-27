@@ -38,7 +38,8 @@ void WordCounter::processFile(const QString &filePath)
     _progressUpdateTimer.start(50);
     while (!(in >> word).atEnd() && !_stop) {
         while (_pause) {
-            QThread::sleep(500);
+            QCoreApplication::processEvents();
+            QThread::sleep(1);
         }
         QString cleanWord = word.toLower().remove(QRegExp("[^a-zа-я0-9]"));
         _bytesProcessed += word.count() + 2;
@@ -56,9 +57,10 @@ void WordCounter::processFile(const QString &filePath)
 
 void WordCounter::pauseProcessing()
 {
-    if (_pause == false)
+    if (_pause == false) {
+        _progressUpdateTimer.start();
         _pause = true;
-    else {
+    } else {
         _pause = false;
         _progressUpdateTimer.stop();
     }
