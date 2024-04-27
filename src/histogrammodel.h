@@ -12,7 +12,8 @@ class HistogramModel : public QAbstractListModel
 
 public:
     Q_PROPERTY(int progress READ progress WRITE setProgress NOTIFY progressChanged)
-    Q_PROPERTY(int globalProgress READ globalProgress WRITE setGlobalProgress NOTIFY globalProgressChanged)
+    Q_PROPERTY(
+     int globalProgress READ globalProgress WRITE setGlobalProgress NOTIFY globalProgressChanged)
     enum Roles
     {
         WordRole = Qt::UserRole + 1, // Роль для слова
@@ -22,7 +23,7 @@ public:
 
     explicit HistogramModel(QObject *parent = nullptr);
 
-    void addData(const QMap<QString, int> &wordList);
+    void addData(const QHash<QString, int> &wordList);
     void clear();
 
     Q_SIGNAL void processFile(const QString &);
@@ -41,7 +42,7 @@ public:
 private:
     qint64 _globalProgress;
     qint64 _progress;
-    QList<QPair<QString, int>> _data;
+    QVector<QPair<QString, int>> _data;
     qint64 progress() const;
     void setProgress(qint64 newProgress);
     qint64 globalProgress() const;

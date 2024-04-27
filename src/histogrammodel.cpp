@@ -44,28 +44,21 @@ void HistogramModel::loadData(const QString &path)
     emit processFile(path);
 }
 
-void HistogramModel::addData(const QMap<QString, int> &wordCounts)
+void HistogramModel::addData(const QHash<QString, int> &wordCounts)
 {
     beginResetModel();
-    // Создаем список пар (слово, количество) из QMap
     QList<QPair<QString, int>> wordList;
     for (auto it = wordCounts.begin(); it != wordCounts.end(); ++it) {
         wordList.append(qMakePair(it.key(), it.value()));
     }
+    QVector<QPair<QString, int>> topData(15);
 
-    // Сортируем список по убыванию количества вхождений
-    std::sort(wordList.begin(), wordList.end(),
-              [](const QPair<QString, int> &a, const QPair<QString, int> &b) {
-                  return a.second > b.second;
-              });
-
-    // Выбираем только топ 15 элементов
-    QList<QPair<QString, int>> topData;
-    for (int i = 0; i < qMin(15, wordList.size()); ++i) {
-        topData.append(wordList.at(i));
-    }
-
+    std::partial_sort_copy(wordList.begin(), wordList.end(), topData.begin(), topData.end(),
+                           [](const QPair<QString, int> &a, const QPair<QString, int> &b) {
+                               return a.second > b.second;
+                           });
     _data = topData;
+
     endResetModel();
 }
 

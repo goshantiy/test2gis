@@ -13,7 +13,7 @@
 
 WordCounter::WordCounter(QObject *parent) : QObject(parent), _progressUpdateTimer(this)
 {
-    qRegisterMetaType<QMap<QString, int>>("QMap<QString, int>");
+    qRegisterMetaType<QHash<QString, int>>("QHash<QString, int>");
     connect(&_progressUpdateTimer, &QTimer::timeout, [this]() {
         emit progressUpdated(_bytesProcessed);
         emit wordCountUpdated(_globalWordCounts);
@@ -59,7 +59,7 @@ void WordCounter::pauseProcessing()
     if (_pause == false)
         _pause = true;
     else {
-        _pause == true;
+        _pause = false;
         _progressUpdateTimer.stop();
     }
 }

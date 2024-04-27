@@ -22,7 +22,7 @@ public:
 
     Q_SIGNAL void progressGlobalCount(qint64 progress);
     Q_SIGNAL void progressUpdated(qint64 progress);
-    Q_SIGNAL void wordCountUpdated(const QMap<QString, int> &wordCounts);
+    Q_SIGNAL void wordCountUpdated(const QHash<QString, int> &wordCounts);
 
     Q_SLOT void processFile(const QString &filePath);
     Q_SLOT void stopProcessing();
@@ -34,7 +34,7 @@ private:
     QTimer _progressUpdateTimer;
     qint64 _bytesProcessed { 0 };
     bool _stopRequested = false;
-    QMap<QString, int> _globalWordCounts;
+    QHash<QString, int> _globalWordCounts;
     void processBlock(const QString &textBlock);
 };
 
