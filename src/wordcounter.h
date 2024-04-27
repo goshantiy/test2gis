@@ -32,7 +32,7 @@ public:
 private:
     QMutex _mutex;
     bool _stop = false;
-    bool _pause = true;
+    bool _pause;
     QTimer _progressUpdateTimer;
     qint64 _bytesProcessed { 0 };
     bool _stopRequested = false;

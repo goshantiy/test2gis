@@ -82,9 +82,10 @@ void WordCounter::processFile(const QString &filePath)
 
 void WordCounter::pauseProcessing()
 {
-    if (_pause == false)
+    if (_pause == false) {
+        _progressUpdateTimer.start();
         _pause = true;
-    else {
+    } else {
         _pause = false;
         _progressUpdateTimer.stop();
     }
