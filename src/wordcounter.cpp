@@ -1,4 +1,5 @@
 #include "wordcounter.h"
+#include "QtConcurrent/qtconcurrentrun.h"
 #include <QObject>
 #include <QFile>
 #include <QTextStream>
@@ -10,6 +11,7 @@
 #include <QUrl>
 #include <QFileInfo>
 #include <QThread>
+#include <QFuture>
 
 WordCounter::WordCounter(QObject *parent) : QObject(parent), _progressUpdateTimer(this)
 {
@@ -34,22 +36,46 @@ void WordCounter::processFile(const QString &filePath)
         return;
 
     QTextStream in(&file);
-    QString word;
-    _progressUpdateTimer.start(50);
-    while (!(in >> word).atEnd() && !_stop) {
-        while (_pause) {
-            QThread::sleep(500);
-        }
-        QString cleanWord = word.toLower().remove(QRegExp("[^a-zа-я0-9]"));
-        _bytesProcessed += word.count() + 2;
-        if (!cleanWord.isEmpty()) {
-            _globalWordCounts[cleanWord]++;
-            if (_bytesProcessed % 1000)
-                QCoreApplication::processEvents();
+    QString content = in.readAll();
+    file.close();
+
+    _progressUpdateTimer.start(100);
+
+    // Разделение данных на блоки
+    const int blockSize = content.size() / QThread::idealThreadCount();
+    QStringList blocks;
+    for (int i = 0; i < content.size(); i += blockSize) {
+        blocks << content.mid(i, blockSize);
+    }
+
+    // Маппинг с использованием всех потоков
+    QList<QFuture<QMap<QString, int>>> futures;
+    for (const QString &block : blocks) {
+        futures.append(QtConcurrent::run([this, block] {
+            QMap<QString, int> wordCounts;
+            QStringList words = block.split(QRegExp("[^a-zа-я0-9]+"), Qt::SkipEmptyParts);
+            for (const QString &word : words) {
+                wordCounts[word.toLower()]++;
+            }
+            _mutex.lock();
+            _bytesProcessed += block.size();
+            _mutex.unlock();
+
+            emit progressUpdated(_bytesProcessed);
+            return wordCounts;
+        }));
+    }
+
+    // Объединение результатов
+    for (const QFuture<QMap<QString, int>> &future : qAsConst(futures)) {
+        QMap<QString, int> result = future.result();
+        for (auto it = result.constBegin(); it != result.constEnd(); ++it) {
+            _globalWordCounts[it.key()] += it.value();
         }
     }
-    file.close();
+
     _progressUpdateTimer.stop();
+
     emit progressUpdated(_bytesProcessed);
     emit wordCountUpdated(_globalWordCounts);
 }

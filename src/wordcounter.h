@@ -28,7 +28,9 @@ public:
     Q_SLOT void stopProcessing();
 
     void pauseProcessing();
+
 private:
+    QMutex _mutex;
     bool _stop = false;
     bool _pause = true;
     QTimer _progressUpdateTimer;
