@@ -58,11 +58,11 @@ void WordCounter::processFile(const QString &filePath)
 void WordCounter::pauseProcessing()
 {
     if (_pause == false) {
-        _progressUpdateTimer.start();
+        _progressUpdateTimer.stop();
         _pause = true;
     } else {
         _pause = false;
-        _progressUpdateTimer.stop();
+        _progressUpdateTimer.start(50);
     }
 }
 
